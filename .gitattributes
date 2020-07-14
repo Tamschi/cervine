@@ -1,0 +1,5 @@
+/.git* text eol=lf
+
+*.rs text eol=lf
+
+Cargo.toml text eol=lf

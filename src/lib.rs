@@ -1,8 +1,8 @@
-use std::fmt::Display;
+#![warn(clippy::pedantic)]
+
 use {
     core::{borrow::Borrow, ops::Deref},
-    smartstring::alias::String,
-    std::borrow::ToOwned,
+    std::fmt::Display,
 };
 
 #[derive(Debug, PartialEq)]
@@ -11,11 +11,25 @@ pub enum Woc<'a, T, R: ?Sized> {
     Borrowed(&'a R),
 }
 
-impl<'a, T: Borrow<R>, R: ToOwned<Owned = T>> Woc<'a, T, R> {
-    fn into_owned(self) -> T {
+impl<'a, T: From<&'a R>, R: ?Sized> Woc<'a, T, R> {
+    pub fn into_owned(self) -> T {
         match self {
             Woc::Owned(t) => t,
-            Woc::Borrowed(r) => r.to_owned(),
+            Woc::Borrowed(r) => r.into(),
+        }
+    }
+
+    pub fn is_borrowed(&self) -> bool {
+        match self {
+            Woc::Owned(_) => false,
+            Woc::Borrowed(_) => true,
+        }
+    }
+
+    pub fn is_owned(&self) -> bool {
+        match self {
+            Woc::Owned(_) => true,
+            Woc::Borrowed(_) => false,
         }
     }
 }
@@ -63,5 +77,11 @@ impl<'a, T: Clone, R: ?Sized> Clone for Woc<'a, T, R> {
             Woc::Owned(t) => Self::Owned(t.clone()),
             Woc::Borrowed(r) => Self::Borrowed(r),
         }
+    }
+}
+
+impl<'a, T: Default, R: ?Sized> Default for Woc<'a, T, R> {
+    fn default() -> Self {
+        Woc::Owned(T::default())
     }
 }

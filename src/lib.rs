@@ -2,10 +2,10 @@
 
 use {
     core::{borrow::Borrow, ops::Deref},
-    std::fmt::Display,
+    std::{fmt::Display, hash::Hash},
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum Woc<'a, T, R: ?Sized> {
     Owned(T),
     Borrowed(&'a R),
@@ -83,5 +83,28 @@ impl<'a, T: Clone, R: ?Sized> Clone for Woc<'a, T, R> {
 impl<'a, T: Default, R: ?Sized> Default for Woc<'a, T, R> {
     fn default() -> Self {
         Woc::Owned(T::default())
+    }
+}
+
+impl<'a, T: AsRef<R>, R: PartialEq + ?Sized> PartialEq<R> for Woc<'a, T, R> {
+    fn eq(&self, other: &R) -> bool {
+        self.as_ref() == other
+    }
+}
+
+impl<'a, T: AsRef<R>, R: PartialEq + ?Sized> PartialEq for Woc<'a, T, R> {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_ref() == other.as_ref()
+    }
+}
+
+impl<'a, T: AsRef<R>, R: Eq + ?Sized> Eq for Woc<'a, T, R> {}
+
+impl<'a, T: Hash, R: Hash + ?Sized> Hash for Woc<'a, T, R> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        match self {
+            Woc::Owned(t) => t.hash(state),
+            Woc::Borrowed(r) => r.hash(state),
+        }
     }
 }

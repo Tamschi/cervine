@@ -43,11 +43,11 @@ impl<'a, T: AsRef<R>, R: ?Sized> AsRef<R> for Woc<'a, T, R> {
     }
 }
 
-impl<'a, T: Deref<Target = R>, R: ?Sized> Deref for Woc<'a, T, R> {
+impl<'a, T: AsRef<R>, R: ?Sized> Deref for Woc<'a, T, R> {
     type Target = R;
     fn deref(&self) -> &Self::Target {
         match self {
-            Woc::Owned(t) => t,
+            Woc::Owned(t) => t.as_ref(),
             Woc::Borrowed(r) => r,
         }
     }

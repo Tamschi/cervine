@@ -6,7 +6,6 @@ edition = "2018"
 description = "That other Cow; to AsRef as std::borrow::Cow is to Borrow"
 license = "MPL-2.0"
 repository = "https://github.com/Tamschi/woc"
-publish = false
 include = [
 	"**/*.rs",
 	"Cargo.toml",

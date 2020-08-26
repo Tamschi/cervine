@@ -1,6 +1,6 @@
 [package]
 name = "woc"
-version = "0.0.0-dev"
+version = "0.0.1"
 authors = ["Tamme Schichler <tamme@schichler.dev>"]
 edition = "2018"
 description = "Woc is to AsRef as Cow is to Borrow"

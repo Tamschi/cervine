@@ -1,9 +1,9 @@
 [package]
-name = "woc"
+name = "cervine"
 version = "0.0.1"
 authors = ["Tamme Schichler <tamme@schichler.dev>"]
 edition = "2018"
-description = "Woc is to AsRef as Cow is to Borrow"
+description = "That other Cow; to AsRef as std::borrow::Cow is to Borrow"
 license = "MPL-2.0"
 repository = "https://github.com/Tamschi/woc"
 publish = false

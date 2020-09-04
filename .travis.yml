@@ -8,6 +8,9 @@ stages:
   - ensure format
   - deny warnings
   - test
+script:
+  - cargo test --verbose
+  - cargo test --verbose --features serde
 jobs:
   include:
     - stage: ensure format

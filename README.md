@@ -18,7 +18,7 @@ A slightly more flexible Cow; to [`AsRef`] as [`alloc::borrow::Cow`] is to [`Bor
 The owned and reference types can be chosen independently, which means for example [smartstring]'s [`String`] can be used in the owned variant instead of [`alloc`'s].
 
 [Serde] support is optional via the `"serde"` feature and `no_std`-compatible.  
-Note that deserialisation currently always happens by value. This may change in a major version upgrade after [specialization] becomes available.
+Note that deserialisation currently always happens by value. This may change in a major version upgrade, likely only after [specialization] becomes available.
 
 [`AsRef`]: https://doc.rust-lang.org/stable/core/convert/trait.AsRef.html
 [`alloc::borrow::Cow`]: https://doc.rust-lang.org/stable/alloc/borrow/enum.Cow.html
@@ -39,7 +39,9 @@ Please use [cargo-edit](https://crates.io/crates/cargo-edit) to always add the l
 cargo add cervine
 ```
 
-## Example
+## Examples
+
+Same type (`T = R = [bool; 2]` so that `T: Borrow<R>`):
 
 ```rust
 use cervine::Cow;
@@ -54,6 +56,22 @@ if thread_rng().gen() {
 }
 
 let array_ref: &[bool; 2] = cow.borrow();
+```
+
+Different types (`T = String` and `R = str` so that `T: AsRef<R>`):
+
+```rust
+use cervine::Cow;
+use rand::prelude::*;
+use smartstring::alias::String;
+
+let mut cow = Cow::Borrowed("borrowed");
+
+if thread_rng().gen() {
+  cow = Cow::Owned(String::from("owned"));
+}
+
+let str_ref: &str = cow.as_ref();
 ```
 
 ## License

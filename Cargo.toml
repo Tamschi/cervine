@@ -6,11 +6,25 @@ edition = "2018"
 description = "A slightly more flexible Cow; to AsRef as std::borrow::Cow is to Borrow"
 license = "MPL-2.0"
 repository = "https://github.com/Tamschi/cervine"
-publish = false
+keywords = ["no_std", "AsRef", "Cow", "Serde"]
+categories = ["data-structures"]
+readme = "README.md"
 include = [
 	"**/*.rs",
+	"!tests/meta_*.rs", # Tests of meta data files not included in the package.
 	"Cargo.toml",
+	"LICENSE-*",
+	"CHANGELOG.md",
+	"README.md",
 ]
+publish = false
 
 [dependencies]
-serde = { version = "1.0.115", optional = true }
+serde = { version = "1.0.115", optional = true, default-features = false }
+
+[dev-dependencies]
+cargo-husky = "1.5.0"
+doc-comment = "0.3.3"
+git_info = "0.1.2"
+rand = "0.7.3"
+version-sync = "0.9.1"

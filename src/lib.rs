@@ -4,6 +4,7 @@
 use core::{
 	borrow::Borrow,
 	cmp::Ordering,
+	convert::{TryFrom, TryInto as _},
 	fmt::{self, Display, Formatter},
 	hash::{Hash, Hasher},
 	ops::Deref,
@@ -49,6 +50,28 @@ impl<'a, T: From<&'a R>, R: ?Sized> Cow<'a, T, R> {
 				*self = Cow::Owned((*r).into());
 				match self {
 					Cow::Owned(t) => t,
+					Cow::Borrowed(_) => unreachable!(),
+				}
+			}
+		}
+	}
+}
+
+impl<'a, T: TryFrom<&'a R>, R: ?Sized> Cow<'a, T, R> {
+	pub fn try_into_owned(self) -> Result<T, T::Error> {
+		match self {
+			Cow::Owned(t) => Ok(t),
+			Cow::Borrowed(r) => r.try_into(),
+		}
+	}
+
+	pub fn try_make_mut(&mut self) -> Result<&mut T, T::Error> {
+		match self {
+			Cow::Owned(t) => Ok(t),
+			Cow::Borrowed(r) => {
+				*self = Cow::Owned((*r).try_into()?);
+				match self {
+					Cow::Owned(t) => Ok(t),
 					Cow::Borrowed(_) => unreachable!(),
 				}
 			}

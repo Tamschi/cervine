@@ -170,12 +170,15 @@ impl<'a, T: AsRef<R>, R: Hash + ?Sized> Hash for Cow<'a, T, R> {
 }
 
 #[cfg(feature = "serde")]
-impl<'a, T: AsRef<R>, R: ser::Serialize + ?Sized> ser::Serialize for Cow<'a, T, R> {
+impl<'a, T: ser::Serialize, R: ser::Serialize + ?Sized> ser::Serialize for Cow<'a, T, R> {
 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
 	where
 		S: ser::Serializer,
 	{
-		self.as_ref().serialize(serializer)
+		match self {
+			Cow::Owned(t) => t.serialize(serializer),
+			Cow::Borrowed(r) => r.serialize(serializer),
+		}
 	}
 }
 

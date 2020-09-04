@@ -12,5 +12,5 @@ include = [
 	"Cargo.toml",
 ]
 
-[features]
-nightly = []
+[dependencies]
+serde = { version = "1.0.115", optional = true }

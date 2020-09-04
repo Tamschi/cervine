@@ -9,6 +9,9 @@ use core::{
 	ops::Deref,
 };
 
+#[cfg(feature = "serde")]
+use serde::{de, ser};
+
 #[derive(Debug, Copy)]
 pub enum Cow<'a, T, R: ?Sized> {
 	Owned(T),
@@ -163,5 +166,35 @@ impl<'a, T: AsRef<R>, R: Ord + ?Sized> Ord for Cow<'a, T, R> {
 impl<'a, T: AsRef<R>, R: Hash + ?Sized> Hash for Cow<'a, T, R> {
 	fn hash<H: Hasher>(&self, state: &mut H) {
 		self.as_ref().hash(state)
+	}
+}
+
+#[cfg(feature = "serde")]
+impl<'a, T: AsRef<R>, R: ser::Serialize + ?Sized> ser::Serialize for Cow<'a, T, R> {
+	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+	where
+		S: ser::Serializer,
+	{
+		self.as_ref().serialize(serializer)
+	}
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T: de::Deserialize<'de>, R: ?Sized> de::Deserialize<'de> for Cow<'de, T, R> {
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where
+		D: serde::Deserializer<'de>,
+	{
+		T::deserialize(deserializer).map(Cow::Owned)
+	}
+
+	fn deserialize_in_place<D>(deserializer: D, place: &mut Self) -> Result<(), D::Error>
+	where
+		D: serde::Deserializer<'de>,
+	{
+		match place {
+			Cow::Owned(t) => T::deserialize_in_place(deserializer, t),
+			Cow::Borrowed(_) => serde::Deserialize::deserialize(deserializer).map(|de| *place = de),
+		}
 	}
 }

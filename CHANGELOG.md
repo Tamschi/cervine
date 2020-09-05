@@ -1,8 +1,8 @@
 # cervine Changelog
 
-## next
+## 0.0.3
 
-TODO: Date
+2020-09-05
 
 * Added meta data
 * Added documentation

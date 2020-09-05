@@ -1,6 +1,6 @@
 [package]
 name = "cervine"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["Tamme Schichler <tamme@schichler.dev>"]
 edition = "2018"
 description = "A slightly more flexible Cow; roughly to T: Borrow<R> as alloc::borrow::Cow is to B: ToOwned"

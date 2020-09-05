@@ -1,5 +1,11 @@
 # cervine Changelog
 
+## next
+
+TODO: date
+
+* Dropped minimum supported Rust version to 1.42.0
+
 ## 0.0.4
 
 2020-09-05

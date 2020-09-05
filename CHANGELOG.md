@@ -1,5 +1,11 @@
 # cervine Changelog
 
+## 0.0.4
+
+2020-09-05
+
+Corrected license expression in Cargo.toml
+
 ## 0.0.3
 
 2020-09-05

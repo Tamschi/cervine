@@ -13,22 +13,23 @@
 [![open pull requests](https://img.shields.io/github/issues-pr-raw/Tamschi/cervine)](https://github.com/Tamschi/cervine/pulls)
 [![crev reviews](https://web.crev.dev/rust-reviews/badge/crev_count/cervine.svg)](https://web.crev.dev/rust-reviews/crate/cervine/)
 
-A slightly more flexible Cow; to [`AsRef`] as [`alloc::borrow::Cow`] is to [`Borrow`].
+A slightly more flexible clone-on-write smart pointer; roughly to [`T: Borrow<R>`] as [`alloc::borrow::Cow`] is to [`B: ToOwned`].
 
 The owned and reference types can be chosen independently, which means for example [smartstring]'s [`String`] can be used in the owned variant instead of [`alloc`'s].
 
 [Serde] support is optional via the `"serde"` feature and `no_std`-compatible.  
-Note that deserialisation currently always happens by value. This may change in a major version upgrade, likely only after [specialization] becomes available.
+Note that deserialisation currently always happens by value and [`serde::Serialize`] is looked up only on the reference type. This may change in a major version upgrade, likely only after [specialization] becomes available.
 
-[`AsRef`]: https://doc.rust-lang.org/stable/core/convert/trait.AsRef.html
+[`T: Borrow<R>`]: https://doc.rust-lang.org/stable/alloc/borrow/trait.Borrow.html
 [`alloc::borrow::Cow`]: https://doc.rust-lang.org/stable/alloc/borrow/enum.Cow.html
-[`Borrow`]: https://doc.rust-lang.org/stable/alloc/borrow/trait.Borrow.html
+[`B: ToOwned`]: https://doc.rust-lang.org/stable/alloc/borrow/trait.ToOwned.html
 
 [smartstring]: https://lib.rs/crates/smartstring
 [`String`]: https://docs.rs/smartstring/0.2.3/smartstring/alias/type.String.html
 [`alloc`'s]: https://doc.rust-lang.org/stable/alloc/string/struct.String.html
 
 [Serde]: https://lib.rs/crates/serde
+[`serde::Serialize`]: https://docs.rs/serde/1.0.115/serde/trait.Serialize.html
 [specialization]: https://github.com/rust-lang/rust/issues/31844
 
 ## Installation
@@ -41,11 +42,10 @@ cargo add cervine
 
 ## Examples
 
-Same type (`T = R = [bool; 2]` so that `T: Borrow<R>`):
+Same type (`T = R = [bool; 2]`):
 
 ```rust
 use cervine::Cow;
-use core::borrow::Borrow as _;
 use rand::prelude::*;
 
 let data = [true, false];
@@ -55,10 +55,10 @@ if thread_rng().gen() {
   cow = Cow::Owned([false, true]);
 }
 
-let array_ref: &[bool; 2] = cow.borrow();
+let array_ref: &[bool; 2] = cow.as_ref();
 ```
 
-Different types (`T = String` and `R = str` so that `T: AsRef<R>`):
+Different types (`T = String` and `R = str`):
 
 ```rust
 use cervine::Cow;

@@ -1,3 +1,50 @@
+//! [`cervine::Cow`] is an [`alloc::borrow::Cow`] alternative that has different generic type constraints.
+//!
+//! [`cervine::Cow`]: enum.Cow.html
+//! [`alloc::borrow::Cow`]: https://doc.rust-lang.org/stable/alloc/borrow/enum.Cow.html
+//!
+//! # Features
+//!
+//! `"serde"`: Implements [`serde::Deserialize`] and [`serde::Serialize`] on [`Cow`].
+//!
+//! [`serde::Deserialize`]: https://docs.rs/serde/1.0.115/serde/trait.Deserialize.html
+//! [`serde::Serialize`]: https://docs.rs/serde/1.0.115/serde/trait.Serialize.html
+//! [`Cow`]: enum.Cow.html
+//!
+//! # Examples
+//!
+//! Same type (`T = R = [bool; 2]`):
+//!
+//! ```rust
+//! use cervine::Cow;
+//! use rand::prelude::*;
+//!
+//! let data = [true, false];
+//! let mut cow = Cow::Borrowed(&data);
+//!
+//! if thread_rng().gen() {
+//!   cow = Cow::Owned([false, true]);
+//! }
+//!
+//! let array_ref: &[bool; 2] = cow.as_ref();
+//! ```
+//!
+//! Different types (`T = String` and `R = str`):
+//!
+//! ```rust
+//! use cervine::Cow;
+//! use rand::prelude::*;
+//! use smartstring::alias::String;
+//!
+//! let mut cow = Cow::Borrowed("borrowed");
+//!
+//! if thread_rng().gen() {
+//!   cow = Cow::Owned(String::from("owned"));
+//! }
+//!
+//! let str_ref: &str = cow.as_ref();
+//! ```
+
 #![no_std]
 #![warn(clippy::pedantic)]
 #![doc(html_root_url = "https://docs.rs/cervine/0.0.2")]
@@ -19,29 +66,74 @@ use core::{
 #[cfg(feature = "serde")]
 use serde::{de, ser};
 
-#[derive(Debug, Copy)]
+/// [`Cow`] is a clone-on-write smart pointer largely analogous to [`alloc::borrow::Cow`], with one key difference:  
+/// Instead of requiring [`ToOwned`], the owned and borrowed type are both configurable and most methods require [`T: Borrow<R>`].
+///
+/// [`serde::Deserialize`] and [`serde::Serialize`] are only available with the `"serde"` feature.
+///
+/// [`Cow`]: enum.Cow.html
+/// [`alloc::borrow::Cow`]: https://doc.rust-lang.org/stable/alloc/borrow/enum.Cow.html
+/// [`ToOwned`]: https://doc.rust-lang.org/stable/alloc/borrow/trait.ToOwned.html
+/// [`T: Borrow<R>`]: https://doc.rust-lang.org/stable/alloc/borrow/trait.Borrow.html
+///
+/// [`serde::Deserialize`]: https://docs.rs/serde/1.0.115/serde/trait.Deserialize.html
+/// [`serde::Serialize`]: https://docs.rs/serde/1.0.115/serde/trait.Serialize.html
+#[derive(Debug)]
 pub enum Cow<'a, T, R: ?Sized> {
 	Owned(T),
 	Borrowed(&'a R),
 }
 
-impl<'a, T, R: ?Sized> Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: ?Sized> Cow<'a, T, R> {
+	/// Returns whether this value is a borrowed variant.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use cervine::Cow;
+	///
+	/// let borrowed: Cow<String, _> = Cow::Borrowed("borrowed");
+	/// let owned: Cow<_, str> = Cow::Owned("owned".to_string());
+	///
+	/// assert!(borrowed.is_borrowed());
+	/// assert!(!owned.is_borrowed());
+	/// ```
 	pub fn is_borrowed(&self) -> bool {
-		match self {
-			Cow::Owned(_) => false,
-			Cow::Borrowed(_) => true,
-		}
+		matches!(self, Cow::Borrowed(_))
 	}
 
+	/// Returns whether this value is an owned variant.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use cervine::Cow;
+	///
+	/// let borrowed: Cow<String, _> = Cow::Borrowed("borrowed");
+	/// let owned: Cow<_, str> = Cow::Owned("owned".to_string());
+	///
+	/// assert!(!borrowed.is_owned());
+	/// assert!(owned.is_owned());
+	/// ```
 	pub fn is_owned(&self) -> bool {
-		match self {
-			Cow::Owned(_) => true,
-			Cow::Borrowed(_) => false,
-		}
+		matches!(self, Cow::Owned(_))
 	}
 }
 
 impl<'a, T: From<&'a R>, R: ?Sized> Cow<'a, T, R> {
+	/// Converts this value into `T`.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use cervine::Cow;
+	///
+	/// let borrowed = Cow::Borrowed("borrowed");
+	/// let owned: Cow<_, str> = Cow::Owned("owned".into());
+	///
+	/// let not_borrowed: String = borrowed.into_owned(); // Clones the `String`.
+	/// let owned: String = owned.into_owned(); // Moves the `String`.
+	/// ```
 	pub fn into_owned(self) -> T {
 		match self {
 			Cow::Owned(t) => t,
@@ -49,6 +141,21 @@ impl<'a, T: From<&'a R>, R: ?Sized> Cow<'a, T, R> {
 		}
 	}
 
+	/// Retrieves a mutable reference to the contained `T`.
+	///
+	/// If this value is a borrowed variant, it is converted in place into an owned variant first.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use cervine::Cow;
+	///
+	/// let mut borrowed = Cow::Borrowed("borrowed");
+	/// let mut owned: Cow<_, str> = Cow::Owned("owned".into());
+	///
+	/// let mutable_copy: &mut String = borrowed.make_mut(); // Clones the `String`.
+	/// let mutable_borrow: &mut String = owned.make_mut();
+	/// ```
 	pub fn make_mut(&mut self) -> &mut T {
 		match self {
 			Cow::Owned(t) => t,
@@ -64,6 +171,27 @@ impl<'a, T: From<&'a R>, R: ?Sized> Cow<'a, T, R> {
 }
 
 impl<'a, T: TryFrom<&'a R>, R: ?Sized> Cow<'a, T, R> {
+	/// Converts this value into `T` if possible.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use cervine::Cow;
+	///
+	/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+	/// let borrowed = Cow::Borrowed("borrowed");
+	/// let owned: Cow<_, str> = Cow::Owned("owned".into());
+	///
+	/// let not_borrowed: String = borrowed.try_into_owned()?; // Clones the `String`.
+	/// let owned: String = owned.try_into_owned()?; // Moves the `String`.
+	/// # Ok(()) }
+	/// ```
+	///
+	/// # Errors
+	///
+	/// * [`<T as TryFrom<&'a R>>::Error`]: Returned iff this value is a borrowed variant and conversion into `T` fails.
+	///
+	/// [`<T as TryFrom<&'a R>>::Error`]: https://doc.rust-lang.org/stable/core/convert/trait.TryFrom.html#associatedtype.Error
 	pub fn try_into_owned(self) -> Result<T, T::Error> {
 		match self {
 			Cow::Owned(t) => Ok(t),
@@ -71,6 +199,29 @@ impl<'a, T: TryFrom<&'a R>, R: ?Sized> Cow<'a, T, R> {
 		}
 	}
 
+	/// Retrieves a mutable reference to the contained `T`, if possible.
+	///
+	/// If this value is a borrowed variant, an attempt is made to convert it in place into an owned variant first.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use cervine::Cow;
+	///
+	/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+	/// let mut borrowed = Cow::Borrowed("borrowed");
+	/// let mut owned: Cow<_, str> = Cow::Owned("owned".into());
+	///
+	/// let mutable_copy: &mut String = borrowed.try_make_mut()?; // Clones the `String`.
+	/// let mutable_borrow: &mut String = owned.try_make_mut()?; // Moves the `String`.
+	/// # Ok(()) }
+	/// ```
+	///
+	/// # Errors
+	///
+	/// * [`<T as TryFrom<&'a R>>::Error`]: Returned iff this value is a borrowed variant and conversion into the owned variant fails.
+	///
+	/// [`<T as TryFrom<&'a R>>::Error`]: https://doc.rust-lang.org/stable/core/convert/trait.TryFrom.html#associatedtype.Error
 	pub fn try_make_mut(&mut self) -> Result<&mut T, T::Error> {
 		match self {
 			Cow::Owned(t) => Ok(t),
@@ -85,20 +236,20 @@ impl<'a, T: TryFrom<&'a R>, R: ?Sized> Cow<'a, T, R> {
 	}
 }
 
-impl<'a, T: AsRef<R>, R: ?Sized> AsRef<R> for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: ?Sized> AsRef<R> for Cow<'a, T, R> {
 	fn as_ref(&self) -> &R {
 		match self {
-			Cow::Owned(t) => t.as_ref(),
+			Cow::Owned(t) => t.borrow(),
 			Cow::Borrowed(r) => r,
 		}
 	}
 }
 
-impl<'a, T: AsRef<R>, R: ?Sized> Deref for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: ?Sized> Deref for Cow<'a, T, R> {
 	type Target = R;
 	fn deref(&self) -> &Self::Target {
 		match self {
-			Cow::Owned(t) => t.as_ref(),
+			Cow::Owned(t) => t.borrow(),
 			Cow::Borrowed(r) => r,
 		}
 	}
@@ -113,11 +264,13 @@ impl<'a, T: Borrow<R>, R: ?Sized> Borrow<R> for Cow<'a, T, R> {
 	}
 }
 
-impl<'a, T: AsRef<R>, R: Display + ?Sized> Display for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: Display + ?Sized> Display for Cow<'a, T, R> {
 	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
 		self.as_ref().fmt(f)
 	}
 }
+
+impl<'a, T: Copy, R: ?Sized> Copy for Cow<'a, T, R> {}
 
 impl<'a, T: Clone, R: ?Sized> Clone for Cow<'a, T, R> {
 	fn clone(&self) -> Self {
@@ -134,21 +287,21 @@ impl<'a, T: Default, R: ?Sized> Default for Cow<'a, T, R> {
 	}
 }
 
-impl<'a, T: AsRef<R>, R: PartialEq + ?Sized> PartialEq<R> for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: PartialEq + ?Sized> PartialEq<R> for Cow<'a, T, R> {
 	fn eq(&self, other: &R) -> bool {
 		self.as_ref() == other
 	}
 }
 
-impl<'a, T: AsRef<R>, R: PartialEq + ?Sized> PartialEq for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: PartialEq + ?Sized> PartialEq for Cow<'a, T, R> {
 	fn eq(&self, other: &Self) -> bool {
 		self.as_ref() == other.as_ref()
 	}
 }
 
-impl<'a, T: AsRef<R>, R: Eq + ?Sized> Eq for Cow<'a, T, R> {}
+impl<'a, T: Borrow<R>, R: Eq + ?Sized> Eq for Cow<'a, T, R> {}
 
-impl<'a, T: AsRef<R>, R: PartialOrd + ?Sized> PartialOrd<R> for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: PartialOrd + ?Sized> PartialOrd<R> for Cow<'a, T, R> {
 	fn partial_cmp(&self, other: &R) -> Option<Ordering> {
 		self.as_ref().partial_cmp(other)
 	}
@@ -166,7 +319,7 @@ impl<'a, T: AsRef<R>, R: PartialOrd + ?Sized> PartialOrd<R> for Cow<'a, T, R> {
 	}
 }
 
-impl<'a, T: AsRef<R>, R: PartialOrd + ?Sized> PartialOrd for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: PartialOrd + ?Sized> PartialOrd for Cow<'a, T, R> {
 	fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
 		self.as_ref().partial_cmp(other.as_ref())
 	}
@@ -184,7 +337,7 @@ impl<'a, T: AsRef<R>, R: PartialOrd + ?Sized> PartialOrd for Cow<'a, T, R> {
 	}
 }
 
-impl<'a, T: AsRef<R>, R: Ord + ?Sized> Ord for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: Ord + ?Sized> Ord for Cow<'a, T, R> {
 	fn cmp(&self, other: &Self) -> Ordering {
 		self.as_ref().cmp(other.as_ref())
 	}
@@ -192,27 +345,26 @@ impl<'a, T: AsRef<R>, R: Ord + ?Sized> Ord for Cow<'a, T, R> {
 	// min, max and clamp handled by default implementation, since they can't be forwarded directly.
 }
 
-impl<'a, T: AsRef<R>, R: Hash + ?Sized> Hash for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: Hash + ?Sized> Hash for Cow<'a, T, R> {
 	fn hash<H: Hasher>(&self, state: &mut H) {
 		self.as_ref().hash(state)
 	}
 }
 
+/// Requires `"serde"` feature.
 #[cfg(feature = "serde")]
-impl<'a, T: ser::Serialize, R: ser::Serialize + ?Sized> ser::Serialize for Cow<'a, T, R> {
+impl<'a, T: Borrow<R>, R: ser::Serialize + ?Sized> ser::Serialize for Cow<'a, T, R> {
 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
 	where
 		S: ser::Serializer,
 	{
-		match self {
-			Cow::Owned(t) => t.serialize(serializer),
-			Cow::Borrowed(r) => r.serialize(serializer),
-		}
+		self.as_ref().serialize(serializer)
 	}
 }
 
+/// Requires `"serde"` feature.
 #[cfg(feature = "serde")]
-impl<'de, T: de::Deserialize<'de>, R: ?Sized> de::Deserialize<'de> for Cow<'de, T, R> {
+impl<'a, 'de, T: de::Deserialize<'de>, R: ?Sized> de::Deserialize<'de> for Cow<'a, T, R> {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 	where
 		D: serde::Deserializer<'de>,

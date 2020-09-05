@@ -4,7 +4,8 @@
 
 TODO: Date
 
-Added meta data
+* Added meta data
+* Added documentation
 
 ## 0.0.2
 

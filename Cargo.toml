@@ -1,10 +1,10 @@
 [package]
 name = "cervine"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["Tamme Schichler <tamme@schichler.dev>"]
 edition = "2018"
 description = "A slightly more flexible Cow; roughly to T: Borrow<R> as alloc::borrow::Cow is to B: ToOwned"
-license = "MPL-2.0"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/Tamschi/cervine"
 keywords = ["no_std", "AsRef", "Cow", "Serde"]
 categories = ["data-structures"]

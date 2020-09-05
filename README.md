@@ -2,7 +2,7 @@
 
 [![Lib.rs](https://img.shields.io/badge/Lib.rs-*-84f)](https://lib.rs/crates/cervine)
 [![Crates.io](https://img.shields.io/crates/v/cervine)](https://crates.io/crates/cervine)
-[![Docs.rs](https://img.shields.io/badge/Docs.rs-*-black)](https://docs.rs/crates/cervine)
+[![Docs.rs](https://docs.rs/cervine/badge.svg)](https://docs.rs/crates/cervine)
 
 ![Rust 1.42.0](https://img.shields.io/static/v1?logo=Rust&label=&message=1.42.0&color=grey)
 [![Build Status](https://travis-ci.com/Tamschi/cervine.svg?branch=develop)](https://travis-ci.com/Tamschi/cervine/branches)

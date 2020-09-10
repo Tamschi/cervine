@@ -1,6 +1,6 @@
 language: rust
 rust:
-  - 1.46.0
+  - 1.42.0
   - stable
   - beta
   - nightly
@@ -9,8 +9,8 @@ stages:
   - deny warnings
   - test
 script:
-  - cargo test --verbose
-  - cargo test --verbose --features serde
+  - cargo +$TRAVIS_RUST_VERSION test --verbose
+  - cargo +$TRAVIS_RUST_VERSION test --verbose --features serde
 jobs:
   include:
     - stage: ensure format

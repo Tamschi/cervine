@@ -2,11 +2,11 @@
 
 [![Lib.rs](https://img.shields.io/badge/Lib.rs-*-84f)](https://lib.rs/crates/cervine)
 [![Crates.io](https://img.shields.io/crates/v/cervine)](https://crates.io/crates/cervine)
-[![Docs.rs](https://img.shields.io/badge/Docs.rs-*-black)](https://docs.rs/crates/cervine)
+[![Docs.rs](https://docs.rs/cervine/badge.svg)](https://docs.rs/crates/cervine)
 
-![Rust 1.46.0](https://img.shields.io/static/v1?logo=Rust&label=&message=1.46.0&color=grey)
+![Rust 1.42.0](https://img.shields.io/static/v1?logo=Rust&label=&message=1.42.0&color=grey)
 [![Build Status](https://travis-ci.com/Tamschi/cervine.svg?branch=unstable)](https://travis-ci.com/Tamschi/cervine/branches)
-![Crates.io - License](https://img.shields.io/crates/l/cervine/0.0.4)
+![Crates.io - License](https://img.shields.io/crates/l/cervine/0.0.5)
 
 [![GitHub](https://img.shields.io/static/v1?logo=GitHub&label=&message=%20&color=grey)](https://github.com/Tamschi/cervine)
 [![open issues](https://img.shields.io/github/issues-raw/Tamschi/cervine)](https://github.com/Tamschi/cervine/issues)

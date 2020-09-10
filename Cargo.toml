@@ -1,11 +1,13 @@
 [package]
 name = "cervine"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["Tamme Schichler <tamme@schichler.dev>"]
 edition = "2018"
 description = "A slightly more flexible Cow; roughly to T: Borrow<R> as alloc::borrow::Cow is to B: ToOwned"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/Tamschi/cervine"
+homepage = "https://github.com/Tamschi/cervine/tree/v0.0.5"
+documentation = "https://docs.rs/cervine/0.0.5"
 keywords = ["no_std", "AsRef", "Cow", "Serde"]
 categories = ["data-structures"]
 readme = "README.md"
@@ -13,10 +15,17 @@ include = [
 	"**/*.rs",
 	"!tests/meta_*.rs", # Tests of meta data files not included in the package.
 	"Cargo.toml",
-	"LICENSE-*",
 	"CHANGELOG.md",
+	"CODE_OF_CONDUCT.md",
+	"LICENSE-*",
 	"README.md",
 ]
+
+[badges]
+travis-ci = { repository = "Tamschi/cervine", branch = "unstable" }
+is-it-maintained-issue-resolution = { repository = "Tamschi/cervine" }
+is-it-maintained-open-issues = { repository = "Tamschi/cervine" }
+maintenance = { status = "experimental" }
 
 [dependencies]
 serde = { version = "1.0.115", optional = true, default-features = false }

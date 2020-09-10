@@ -1,5 +1,9 @@
 # cervine Changelog
 
+## next
+
+* Adjusted tags
+
 ## 0.0.5
 
 2020-09-10

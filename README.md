@@ -47,6 +47,7 @@ Same type (`T = R = [bool; 2]`):
 ```rust
 use cervine::Cow;
 use rand::prelude::*;
+use std::borrow::Borrow as _;
 
 let data = [true, false];
 let mut cow = Cow::Borrowed(&data);
@@ -55,7 +56,7 @@ if thread_rng().gen() {
   cow = Cow::Owned([false, true]);
 }
 
-let array_ref: &[bool; 2] = cow.as_ref();
+let array_ref: &[bool; 2] = cow.borrow();
 ```
 
 Different types (`T = String` and `R = str`):

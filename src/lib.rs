@@ -18,6 +18,7 @@
 //! ```rust
 //! use cervine::Cow;
 //! use rand::prelude::*;
+//! use std::borrow::Borrow as _;
 //!
 //! let data = [true, false];
 //! let mut cow = Cow::Borrowed(&data);
@@ -26,7 +27,7 @@
 //!   cow = Cow::Owned([false, true]);
 //! }
 //!
-//! let array_ref: &[bool; 2] = cow.as_ref();
+//! let array_ref: &[bool; 2] = cow.borrow();
 //! ```
 //!
 //! Different types (`T = String` and `R = str`):
@@ -236,20 +237,20 @@ impl<'a, T: TryFrom<&'a R>, R: ?Sized> Cow<'a, T, R> {
 	}
 }
 
-impl<'a, T: Borrow<R>, R: ?Sized> AsRef<R> for Cow<'a, T, R> {
+impl<'a, T: AsRef<R>, R: ?Sized> AsRef<R> for Cow<'a, T, R> {
 	fn as_ref(&self) -> &R {
 		match self {
-			Cow::Owned(t) => t.borrow(),
+			Cow::Owned(t) => t.as_ref(),
 			Cow::Borrowed(r) => r,
 		}
 	}
 }
 
-impl<'a, T: Borrow<R>, R: ?Sized> Deref for Cow<'a, T, R> {
+impl<'a, T: Deref<Target = R>, R: ?Sized> Deref for Cow<'a, T, R> {
 	type Target = R;
 	fn deref(&self) -> &Self::Target {
 		match self {
-			Cow::Owned(t) => t.borrow(),
+			Cow::Owned(t) => t,
 			Cow::Borrowed(r) => r,
 		}
 	}
@@ -266,7 +267,7 @@ impl<'a, T: Borrow<R>, R: ?Sized> Borrow<R> for Cow<'a, T, R> {
 
 impl<'a, T: Borrow<R>, R: Display + ?Sized> Display for Cow<'a, T, R> {
 	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-		self.as_ref().fmt(f)
+		Borrow::<R>::borrow(self).fmt(f)
 	}
 }
 
@@ -289,13 +290,13 @@ impl<'a, T: Default, R: ?Sized> Default for Cow<'a, T, R> {
 
 impl<'a, T: Borrow<R>, R: PartialEq + ?Sized> PartialEq<R> for Cow<'a, T, R> {
 	fn eq(&self, other: &R) -> bool {
-		self.as_ref() == other
+		Borrow::<R>::borrow(self) == other
 	}
 }
 
 impl<'a, T: Borrow<R>, R: PartialEq + ?Sized> PartialEq for Cow<'a, T, R> {
 	fn eq(&self, other: &Self) -> bool {
-		self.as_ref() == other.as_ref()
+		Borrow::<R>::borrow(self) == other.borrow()
 	}
 }
 
@@ -303,43 +304,43 @@ impl<'a, T: Borrow<R>, R: Eq + ?Sized> Eq for Cow<'a, T, R> {}
 
 impl<'a, T: Borrow<R>, R: PartialOrd + ?Sized> PartialOrd<R> for Cow<'a, T, R> {
 	fn partial_cmp(&self, other: &R) -> Option<Ordering> {
-		self.as_ref().partial_cmp(other)
+		Borrow::<R>::borrow(self).partial_cmp(other)
 	}
 	fn lt(&self, other: &R) -> bool {
-		self.as_ref().lt(other)
+		Borrow::<R>::borrow(self).lt(other)
 	}
 	fn le(&self, other: &R) -> bool {
-		self.as_ref().le(other)
+		Borrow::<R>::borrow(self).le(other)
 	}
 	fn gt(&self, other: &R) -> bool {
-		self.as_ref().gt(other)
+		Borrow::<R>::borrow(self).gt(other)
 	}
 	fn ge(&self, other: &R) -> bool {
-		self.as_ref().ge(other)
+		Borrow::<R>::borrow(self).ge(other)
 	}
 }
 
 impl<'a, T: Borrow<R>, R: PartialOrd + ?Sized> PartialOrd for Cow<'a, T, R> {
 	fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-		self.as_ref().partial_cmp(other.as_ref())
+		Borrow::<R>::borrow(self).partial_cmp(other.borrow())
 	}
 	fn lt(&self, other: &Self) -> bool {
-		self.as_ref().lt(other.as_ref())
+		Borrow::<R>::borrow(self).lt(other.borrow())
 	}
 	fn le(&self, other: &Self) -> bool {
-		self.as_ref().le(other.as_ref())
+		Borrow::<R>::borrow(self).le(other.borrow())
 	}
 	fn gt(&self, other: &Self) -> bool {
-		self.as_ref().gt(other.as_ref())
+		Borrow::<R>::borrow(self).gt(other.borrow())
 	}
 	fn ge(&self, other: &Self) -> bool {
-		self.as_ref().ge(other.as_ref())
+		Borrow::<R>::borrow(self).ge(other.borrow())
 	}
 }
 
 impl<'a, T: Borrow<R>, R: Ord + ?Sized> Ord for Cow<'a, T, R> {
 	fn cmp(&self, other: &Self) -> Ordering {
-		self.as_ref().cmp(other.as_ref())
+		Borrow::<R>::borrow(self).cmp(other.borrow())
 	}
 
 	// min, max and clamp handled by default implementation, since they can't be forwarded directly.
@@ -347,7 +348,7 @@ impl<'a, T: Borrow<R>, R: Ord + ?Sized> Ord for Cow<'a, T, R> {
 
 impl<'a, T: Borrow<R>, R: Hash + ?Sized> Hash for Cow<'a, T, R> {
 	fn hash<H: Hasher>(&self, state: &mut H) {
-		self.as_ref().hash(state)
+		Borrow::<R>::borrow(self).hash(state)
 	}
 }
 
@@ -358,7 +359,7 @@ impl<'a, T: Borrow<R>, R: ser::Serialize + ?Sized> ser::Serialize for Cow<'a, T,
 	where
 		S: ser::Serializer,
 	{
-		self.as_ref().serialize(serializer)
+		Borrow::<R>::borrow(self).serialize(serializer)
 	}
 }
 

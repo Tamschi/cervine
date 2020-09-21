@@ -4,13 +4,15 @@ Thank you for your contribution to the `cervine` repository!
 
 Before submitting this pull request, please make sure:
 
+* [ ] You've read `CONTRIBUTING.md`.
+
 * [ ] The `version` value in `Cargo.toml` is unchanged.
 
 * [ ] Your code builds cleanly without any errors or warnings and passes all tests.
 
 * [ ] You have added documentation with examples and integration tests (in the `tests/` folder) where applicable.
 
-* [ ] You have added yourself to `authors` in `Cargo.toml` and to the copyright holders lists in `LICENSE-APACHE` and `LICENSE-MIT`, or amended the copyright years in the `LICENSE-*` files if you had contributed in a previous year.  
+* [ ] You have added yourself to `authors` in `Cargo.toml` if applicable and to the copyright holders lists in `LICENSE-APACHE` and `LICENSE-MIT`, or amended the copyright years in the `LICENSE-*` files if you had contributed in a previous year.  
   * Using a nickname and/or leaving out your email address is fine too.
   * If you instead do not wish to be credited, please remark this in your pull request.
 

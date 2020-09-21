@@ -1,3 +1,5 @@
+#![cfg(not(miri))]
+
 #[path = "constants_.rs"]
 mod constants;
 use constants::*;
@@ -10,7 +12,10 @@ fn changelog() {
 
 #[test]
 fn html_root_url() {
-	version_sync::assert_html_root_url_updated!("src/lib.rs");
+	version_sync::assert_contains_regex!(
+		"src/lib.rs",
+		r#"^#!\[doc\(html_root_url = "https://docs\.rs/{name}/{version}"\)\]$"#
+	);
 }
 
 #[test]

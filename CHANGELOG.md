@@ -1,5 +1,13 @@
 # cervine Changelog
 
+## 0.0.6
+
+* Adjusted tags
+* Test now ensures html_root_url is present
+* Fixed compatibility with Miri
+* Adjusted contribution guidelines
+* AsRef and Deref are now implemented via those respective traits on owned values
+
 ## 0.0.5
 
 2020-09-10

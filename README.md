@@ -6,7 +6,7 @@
 
 ![Rust 1.42.0](https://img.shields.io/static/v1?logo=Rust&label=&message=1.42.0&color=grey)
 [![Build Status](https://travis-ci.com/Tamschi/cervine.svg?branch=unstable)](https://travis-ci.com/Tamschi/cervine/branches)
-![Crates.io - License](https://img.shields.io/crates/l/cervine/0.0.5)
+![Crates.io - License](https://img.shields.io/crates/l/cervine/0.0.6)
 
 [![GitHub](https://img.shields.io/static/v1?logo=GitHub&label=&message=%20&color=grey)](https://github.com/Tamschi/cervine)
 [![open issues](https://img.shields.io/github/issues-raw/Tamschi/cervine)](https://github.com/Tamschi/cervine/issues)
@@ -47,6 +47,7 @@ Same type (`T = R = [bool; 2]`):
 ```rust
 use cervine::Cow;
 use rand::prelude::*;
+use std::borrow::Borrow as _;
 
 let data = [true, false];
 let mut cow = Cow::Borrowed(&data);
@@ -55,7 +56,7 @@ if thread_rng().gen() {
   cow = Cow::Owned([false, true]);
 }
 
-let array_ref: &[bool; 2] = cow.as_ref();
+let array_ref: &[bool; 2] = cow.borrow();
 ```
 
 Different types (`T = String` and `R = str`):

@@ -48,7 +48,7 @@
 
 #![no_std]
 #![warn(clippy::pedantic)]
-#![doc(html_root_url = "https://docs.rs/cervine/0.0.5")]
+#![doc(html_root_url = "https://docs.rs/cervine/0.0.6")]
 
 #[cfg(doctest)]
 pub mod readme {

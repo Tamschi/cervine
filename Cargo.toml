@@ -1,13 +1,13 @@
 [package]
 name = "cervine"
-version = "0.0.5"
+version = "0.0.6"
 authors = ["Tamme Schichler <tamme@schichler.dev>"]
 edition = "2018"
 description = "A slightly more flexible Cow; roughly to T: Borrow<R> as alloc::borrow::Cow is to B: ToOwned"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/Tamschi/cervine"
-homepage = "https://github.com/Tamschi/cervine/tree/v0.0.5"
-documentation = "https://docs.rs/cervine/0.0.5"
+homepage = "https://github.com/Tamschi/cervine/tree/v0.0.6"
+documentation = "https://docs.rs/cervine/0.0.6"
 keywords = ["no_std", "Borrow", "Cow", "Serde"]
 categories = ["data-structures"]
 readme = "README.md"

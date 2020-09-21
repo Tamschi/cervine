@@ -1,6 +1,6 @@
 # cervine Changelog
 
-## next
+## 0.0.6
 
 * Adjusted tags
 * Test now ensures html_root_url is present

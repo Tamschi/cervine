@@ -5,6 +5,7 @@
 * Adjusted tags
 * Test now ensures html_root_url is present
 * Fixed compatibility with Miri
+* Adjusted contribution guidelines
 
 ## 0.0.5
 

@@ -1,3 +1,5 @@
+#![cfg(not(miri))]
+
 #[test]
 fn crate_name() {
 	version_sync::assert_contains_regex!(

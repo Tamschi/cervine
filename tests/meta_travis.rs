@@ -1,3 +1,5 @@
+#![cfg(not(miri))]
+
 #[path = "constants_.rs"]
 mod constants;
 use constants::*;

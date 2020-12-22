@@ -1,5 +1,7 @@
 # cervine Changelog
 
+<!-- markdownlint-disable no-trailing-punctuation -->
+
 ## 0.0.6
 
 * Adjusted tags

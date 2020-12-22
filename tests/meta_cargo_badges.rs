@@ -1,19 +1,8 @@
 #![cfg(not(miri))]
 
-#[path = "constants_.rs"]
+#[path = "meta_constants_.rs"]
 mod constants;
 use constants::*;
-
-#[test]
-fn travis_ci() {
-	version_sync::assert_contains_regex!(
-		"Cargo.toml",
-		&format!(
-			r#"^travis-ci = \{{ repository = "{0}/{{name}}", branch = "{1}" \}}$"#,
-			USER, BRANCH,
-		)
-	);
-}
 
 #[test]
 fn is_it_maintained_issue_resolution() {

@@ -1,6 +1,6 @@
 #![cfg(not(miri))]
 
-#[path = "constants_.rs"]
+#[path = "meta_constants_.rs"]
 mod constants;
 use constants::*;
 
@@ -14,7 +14,7 @@ fn weak_assert_branch() {
 		} else if branch == "(no branch)" {
 			// Most likely a release tag.
 			eprintln!(r#"Branch assert ignored: "(no branch)""#)
-		} else if branch.contains('-') {
+		} else if branch.contains('-') || branch.contains('/') {
 			eprintln!("Branch assert ignored: Probably a feature branch")
 		} else {
 			assert_eq!(BRANCH, branch);
@@ -64,8 +64,9 @@ fn build_status() {
 	version_sync::assert_contains_regex!(
 		"README.md",
 		&format!(
-			r"^\[!\[Build Status\]\(https://travis-ci\.com/{0}/{{name}}\.svg\?branch={1}\)\]\(https://travis-ci.com/{0}/{{name}}/branches\)$",
-			USER, BRANCH,
+			r"^\[!\[CI\]\(https://github\.com/{user}/{{name}}/workflows/CI/badge\.svg\?branch={branch}\)\]\(https://github\.com/{user}/{{name}}/actions\?query=workflow%3ACI\+branch%3A{branch}\)$",
+			user = USER,
+			branch = BRANCH,
 		)
 	);
 }

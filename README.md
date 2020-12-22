@@ -5,7 +5,7 @@
 [![Docs.rs](https://docs.rs/cervine/badge.svg)](https://docs.rs/crates/cervine)
 
 ![Rust 1.42.0](https://img.shields.io/static/v1?logo=Rust&label=&message=1.42.0&color=grey)
-[![Build Status](https://travis-ci.com/Tamschi/cervine.svg?branch=develop)](https://travis-ci.com/Tamschi/cervine/branches)
+[![CI](https://github.com/Tamschi/cervine/workflows/CI/badge.svg?branch=develop)](https://github.com/Tamschi/cervine/actions?query=workflow%3ACI+branch%3Adevelop)
 ![Crates.io - License](https://img.shields.io/crates/l/cervine/0.0.6)
 
 [![GitHub](https://img.shields.io/static/v1?logo=GitHub&label=&message=%20&color=grey)](https://github.com/Tamschi/cervine)

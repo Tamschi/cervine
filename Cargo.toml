@@ -13,7 +13,7 @@ categories = ["data-structures"]
 readme = "README.md"
 include = [
 	"**/*.rs",
-	"!tests/meta_*.rs", # Tests of meta data files not included in the package.
+	"!tests/unincluded_*.rs", # Tests of meta data files not included in the package.
 	"Cargo.toml",
 	"CHANGELOG.md",
 	"CODE_OF_CONDUCT.md",
@@ -23,7 +23,6 @@ include = [
 publish = false
 
 [badges]
-travis-ci = { repository = "Tamschi/cervine", branch = "develop" }
 is-it-maintained-issue-resolution = { repository = "Tamschi/cervine" }
 is-it-maintained-open-issues = { repository = "Tamschi/cervine" }
 maintenance = { status = "experimental" }
